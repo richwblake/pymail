@@ -10,6 +10,8 @@ flask-sqlalchemy = "*"
 werkzeug = "*"
 sqlalchemy-serializer = "*"
 ipdb = "*"
+flask-cors = "*"
+faker = "*"
 
 [dev-packages]
 
