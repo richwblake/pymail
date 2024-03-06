@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
-from pprint import pprint
+from dotenv import dotenv_values
 import ipdb
 
 from models import db, Message
@@ -24,11 +24,20 @@ def messages():
         for attr in request.get_json():
             setattr(message, attr, request.get_json()[attr])
 
+
         db.session.add(message)
         db.session.commit()
 
+        send_message(message.content)
+
         return make_response(message.to_dict(), 201)
 
+
+def send_message(message):
+    env = dotenv_values('.env')
+
+    
+    
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
