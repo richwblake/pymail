@@ -7,5 +7,13 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
+class Message(db.Model):
+    __tablename__ = 'messages'
 
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False)
+    content = db.Column(db.String, nullable=False)
 
+    def __repr__(self):
+        return f'<Message {self.id} {self.name} {self.email} {self.content[0:10]}...>'
