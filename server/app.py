@@ -16,11 +16,6 @@ migrate = Migrate(app, db)
 
 db.init_app(app)
 
-@app.route('/meta')
-def meta():
-    pprint(dict(request.headers))
-    return make_response({'message': 'request okay, metadata logged'}, 200)
-
 @app.route('/messages', methods=['GET', 'POST'])
 def messages():
     if request.method == 'GET':
