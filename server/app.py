@@ -2,6 +2,9 @@ from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 from dotenv import dotenv_values
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 import ipdb
 
 from models import db, Message
@@ -28,7 +31,7 @@ def messages():
         db.session.add(message)
         db.session.commit()
 
-        send_message(message.content)
+        send_message(message)
 
         return make_response(message.to_dict(), 201)
 
@@ -36,7 +39,32 @@ def messages():
 def send_message(message):
     env = dotenv_values('.env')
 
+    # e-mail content details
+    subject = f'Pymail from {message.name} (willsblake.tech)'
+    body = f'RETURN ADDRESS: {message.email}\n\nMESSAGE BODY: {message.content}'
+
+    # Configure smtp credentials 
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = '587'
+    smtp_username = env['SENDER_USER']
+    smtp_password = env['SENDER_PASS']
+    receiver = env['RECEIVER']
     
+    # Create message object
+    msg = MIMEMultipart()
+    msg['From'] = smtp_username
+    msg['To'] = receiver
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Send email via SMTP
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        text = msg.as_string()
+        server.sendmail(smtp_username, receiver, text)
+
     
 
 if __name__ == '__main__':
