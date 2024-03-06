@@ -16,16 +16,9 @@ migrate = Migrate(app, db)
 
 db.init_app(app)
 
-@app.route('/messages', methods=['GET', 'POST'])
+@app.route('/messages', methods=['POST'])
 def messages():
-    if request.method == 'GET':
-        messages = Message.query.all()
-
-        message_dicts = [m.to_dict() for m in messages]
-
-        return make_response(message_dicts, 200)
-
-    elif request.method == 'POST':
+    if request.method == 'POST':
         message = Message()
 
         for attr in request.get_json():
@@ -33,7 +26,7 @@ def messages():
 
         db.session.add(message)
         db.session.commit()
-        
+
         return make_response(message.to_dict(), 201)
 
 
