@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 import smtplib
 import ipdb
 
-from models import db, Message
+from models import db, Receiver, Message, MessageField
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -22,18 +22,39 @@ db.init_app(app)
 @app.route('/messages', methods=['POST'])
 def messages():
     if request.method == 'POST':
-        message = Message()
 
-        for attr in request.get_json():
-            setattr(message, attr, request.get_json()[attr])
+        # Get receiver base on request origin
+        origin = request.headers.get('origin')
+        receiver = Receiver.query.filter_by(origin=origin).first()
+        
+        if not receiver:
+            return make_response({ 'message': f'Request unauthorized, bad origin: {origin}' }, 401)
+        else:
+            new_message = build_message(request.get_json())
+            receiver.messages.append(new_message)
+
+            db.session.add(receiver)
+            db.session.commit()
+
+            return make_response(new_message.to_dict(), 201)
 
 
-        db.session.add(message)
-        db.session.commit()
 
-        send_message(message)
+        # TODO: BRING BACK IN TO TEST MAILING 
+        # send_message(message)
 
-        return make_response(message.to_dict(), 201)
+
+def build_message(form_data):
+    return build_message_fields(Message(), form_data)
+
+def build_message_fields(message, form_data):
+    for attr, val in form_data.items():
+        new_field = MessageField()
+        new_field.title = attr
+        new_field.content = val
+        message.message_fields.append(new_field)
+
+    return message
 
 
 def send_message(message):
