@@ -14,7 +14,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
-CORS(app, resources={r'/*': {'origins': ['https://willsblake.tech', 'https://www.willsblake.tech']}})
+CORS(app, resources={r'/*': {'origins': [
+    'https://statesoleil.com', 
+    'https://www.statesoleil.com', 
+    'https://willsblake.tech', 
+    'https://www.willsblake.tech']}})
 migrate = Migrate(app, db)
 
 db.init_app(app)
@@ -26,7 +30,7 @@ def messages():
         # Get receiver base on request origin
         origin = request.headers.get('origin')
         receiver = Receiver.query.filter_by(origin=origin).first()
-        
+
         if not receiver:
             return make_response({ 'message': f'Request unauthorized, bad origin: {origin}' }, 401)
         else:
@@ -35,7 +39,7 @@ def messages():
 
             db.session.add(receiver)
             db.session.commit()
-        
+
             send_message(new_message)
 
             return make_response(new_message.to_dict(), 201)
@@ -61,7 +65,7 @@ def send_message(message):
     smtp_username = env['SENDER_USER']
     smtp_password = env['SENDER_PASS']
     receiver = message.receiver.email 
-    
+
     # build email message
     msg = build_email_from_message(message, smtp_username)
 
