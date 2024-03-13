@@ -14,19 +14,16 @@ def create_messages():
 
     r1 = Receiver(name=fake.name(), origin=fake.url(), email=fake.email())
     r2 = Receiver(name=fake.name(), origin=fake.url(), email=fake.email())
-    r3 = Receiver(name=fake.name(), origin=fake.url(), email=fake.email())
 
     db.session.add(r1)
     db.session.add(r2)
-    db.session.add(r3)
 
     r1.messages = [Message() for i in range(0, 5)]
     r2.messages = [Message() for i in range(0, 5)]
-    r3.messages = [Message() for i in range(0, 5)]
 
     for receiver in Receiver.query.all():
         for message in receiver.messages:
-            message.message_fields = [MessageField(title=fake.country(), content=fake.sentence()) for i in range(0, 3)]
+            message.message_fields = [MessageField(title=fake.word(), content=fake.sentence()) for i in range(0, 3)]
 
     db.session.commit()
 
