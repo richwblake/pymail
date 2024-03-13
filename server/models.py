@@ -32,7 +32,7 @@ class Receiver(db.Model, SerializerMixin):
 class Message(db.Model, SerializerMixin):
     __tablename__ = 'messages'
 
-    serializer_rules = ('-receiver.messages', '-message_fields.message',)
+    serialize_rules = ('-receiver.messages', '-message_fields.message',)
 
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -49,7 +49,7 @@ class Message(db.Model, SerializerMixin):
 class MessageField(db.Model, SerializerMixin):
     __tablename__ = 'message_fields'
 
-    serializer_rules = ('-message.message_fields',)
+    serialize_rules = ('-message.message_fields',)
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
