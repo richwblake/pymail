@@ -38,8 +38,6 @@ def messages():
 
         receiver = Receiver.query.filter_by(origin=origin).first()
 
-        ipdb.set_trace()
-
         if not receiver:
             return make_response({ 'message': f'Request unauthorized, bad origin: {origin}' }, 401)
         else:
