@@ -5,6 +5,7 @@ from dotenv import dotenv_values
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
+import re
 import ipdb
 
 from models import db, Receiver, Message, MessageField
@@ -29,7 +30,15 @@ def messages():
 
         # Get receiver base on request origin
         origin = request.headers.get('origin')
+
+        match = re.search(r'www', origin)
+
+        if not match:
+            origin = origin[:8] + 'www.' + origin[8:]
+
         receiver = Receiver.query.filter_by(origin=origin).first()
+
+        ipdb.set_trace()
 
         if not receiver:
             return make_response({ 'message': f'Request unauthorized, bad origin: {origin}' }, 401)
