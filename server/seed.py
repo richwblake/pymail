@@ -12,7 +12,7 @@ def create_messages():
 
     messages = []
 
-    r1 = Receiver(name=fake.name(), origin=fake.url(), email=fake.email())
+    r1 = Receiver(name=fake.name(), origin='https://www.willsblake.tech', email=fake.email())
     r2 = Receiver(name=fake.name(), origin=fake.url(), email=fake.email())
 
     db.session.add(r1)
