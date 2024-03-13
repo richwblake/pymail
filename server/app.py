@@ -35,14 +35,10 @@ def messages():
 
             db.session.add(receiver)
             db.session.commit()
+        
+            send_message(new_message)
 
             return make_response(new_message.to_dict(), 201)
-
-
-
-        # TODO: BRING BACK IN TO TEST MAILING 
-        # send_message(message)
-
 
 def build_message(form_data):
     return build_message_fields(Message(), form_data)
@@ -56,37 +52,42 @@ def build_message_fields(message, form_data):
 
     return message
 
-
 def send_message(message):
     env = dotenv_values('.env')
-
-    # e-mail content details
-    subject = f'Pymail from {message.name} (willsblake.tech)'
-    body = f'RETURN ADDRESS: {message.email}\n\nMESSAGE BODY: {message.content}'
 
     # Configure smtp credentials 
     smtp_server = 'smtp.gmail.com'
     smtp_port = '587'
     smtp_username = env['SENDER_USER']
     smtp_password = env['SENDER_PASS']
-    receiver = env['RECEIVER']
+    receiver = message.receiver.email 
     
-    # Create message object
-    msg = MIMEMultipart()
-    msg['From'] = smtp_username
-    msg['To'] = receiver
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
+    # build email message
+    msg = build_email_from_message(message, smtp_username)
 
     # Send email via SMTP
-
     with smtplib.SMTP(smtp_server, smtp_port) as server:
         server.starttls()
         server.login(smtp_username, smtp_password)
         text = msg.as_string()
-        server.sendmail(smtp_username, receiver, text)
+        server.sendmail(smtp_username, message.receiver.email, text)
 
-    
+def build_email_from_message(message, smtp_sender):
+    # e-mail metadata 
+    subject = f'Inquiry from {message.receiver.origin}'
+
+    # form data converted to string for e-mail body
+    body_intro = f'Hi {message.receiver.name},\n\nYou\'ve received a new inquiry. Please see the rest of the message for more details.'
+    formatted_formdata = body_intro + '\n\n'+ '~~~MESSAGE START~~~\n\n' + '\n\n'.join(f'{field.title.upper()}: {field.content}' for field in message.message_fields)
+
+    # Create message object
+    msg = MIMEMultipart()
+    msg['From'] = smtp_sender
+    msg['To'] = message.receiver.email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(formatted_formdata, 'plain'))
+
+    return msg
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
