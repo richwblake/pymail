@@ -6,11 +6,13 @@ fake = Faker()
 
 def create_messages():
 
+    Receiver.query.delete()
     Message.query.delete()
+    MessageField.query.delete()
 
     messages = []
 
-    for i in range(20):
+    for i in range(5):
         m = Message(
                 name = fake.name(),
                 email = fake.email(),
