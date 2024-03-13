@@ -31,7 +31,8 @@ def messages():
         db.session.add(message)
         db.session.commit()
 
-        send_message(message)
+        # TODO: BRING BACK IN TO TEST MAILING 
+        # send_message(message)
 
         return make_response(message.to_dict(), 201)
 

@@ -19,14 +19,15 @@ class Receiver(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    origin = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
-    messages = db.relationship('Message', back_populates='receiver')
+    messages = db.relationship('Message', back_populates='receiver', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Receiver {self.id} {self.name} {self.email}>'
+        return f'<Receiver {self.id} {self.name} {self.origin} {self.email}>'
 
 class Message(db.Model, SerializerMixin):
     __tablename__ = 'messages'
@@ -40,7 +41,7 @@ class Message(db.Model, SerializerMixin):
     receiver_id = db.Column(db.Integer, db.ForeignKey('receivers.id'))
 
     receiver = db.relationship('Receiver', back_populates='messages')
-    message_fields = db.relationship('MessageField', back_populates='message')
+    message_fields = db.relationship('MessageField', back_populates='message', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Message {self.id} {len(self.message_fields)} message fields>'
