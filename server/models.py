@@ -12,6 +12,18 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
+class Receiver(db.Model, SerializerMixin):
+    __tablename__ = 'receivers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+
+    def __repr__(self):
+        return f'<Receiver {self.id} {self.name} {self.email}>'
+
 class Message(db.Model, SerializerMixin):
     __tablename__ = 'messages'
 
@@ -19,6 +31,24 @@ class Message(db.Model, SerializerMixin):
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
     content = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+
+    receiver_id = db.Column(db.Integer, db.ForeignKey('receivers.id'))
 
     def __repr__(self):
         return f'<Message {self.id} {self.name} {self.email} {self.content[0:10]}...>'
+
+class MessageField(db.Model, SerializerMixin):
+    __tablename__ = 'message_fields'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String, nullable=False)
+    content = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, onupdate=db.func.now())
+
+    message_id = db.Column(db.Integer, db.ForeignKey('messages.id'))
+
+    def __repr__(self):
+        return f'<MessageField {self.id} {self.title} {self.content[0:10]}...>'
